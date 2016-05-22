@@ -5,6 +5,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi.DriveIdResult;
@@ -29,7 +30,6 @@ public class ListFile extends BaseClientAuth {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_listfiles);
-
         mHasMore = true; // initial request assumes there are files results.
 
         mListView = (ListView) findViewById(R.id.listViewResults);
@@ -84,9 +84,11 @@ public class ListFile extends BaseClientAuth {
         if (!mHasMore) {
             return;
         }
-        String h = Drive.DriveApi.getRootFolder(getGoogleApiClient()).getDriveId().getResourceId().toString();
+        Drive.DriveApi.requestSync(getGoogleApiClient()).;
+        String h = Drive.DriveApi.getAppFolder(getGoogleApiClient()).getDriveId().getResourceId().toString();
         showMessage(h);
         Drive.DriveApi.fetchDriveId(getGoogleApiClient(), h).setResultCallback(idCallback);
+
     }
 
     /**
