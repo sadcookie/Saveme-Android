@@ -24,6 +24,7 @@ public class SyncRequestsActivity extends BaseClientAuth {
 
     @Override
     public void onConnected(Bundle connectionHint) {
+        showMessage("SyncRequestActivtiy Activate!");
         super.onConnected(connectionHint);
         new CreateFileAsyncTask(this).execute();
     }

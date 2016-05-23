@@ -10,9 +10,11 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi.DriveIdResult;
 import com.google.android.gms.drive.DriveApi.MetadataBufferResult;
+import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
+import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.widget.DataBufferAdapter;
 
 /**
@@ -84,8 +86,7 @@ public class ListFile extends BaseClientAuth {
         if (!mHasMore) {
             return;
         }
-        Drive.DriveApi.requestSync(getGoogleApiClient()).;
-        String h = Drive.DriveApi.getAppFolder(getGoogleApiClient()).getDriveId().getResourceId().toString();
+        String h = Drive.DriveApi.getRootFolder(getGoogleApiClient()).getDriveId().getResourceId().toString();
         showMessage(h);
         Drive.DriveApi.fetchDriveId(getGoogleApiClient(), h).setResultCallback(idCallback);
 
@@ -102,11 +103,8 @@ public class ListFile extends BaseClientAuth {
                 showMessage("Cannot find DriveId. Are you authorized to view this file?");
                 return;
             }
-            DriveId driveId = result.getDriveId();
-            showMessage(driveId.toString());
-            DriveFolder folder = driveId.asDriveFolder();
-            folder.listChildren(getGoogleApiClient())
-                    .setResultCallback(metadataResult);
+            DriveFolder rootfolder = Drive.DriveApi.getRootFolder(getGoogleApiClient());
+            rootfolder.listChildren(getGoogleApiClient()).setResultCallback(metadataResult);
         }
     };
 
@@ -119,9 +117,10 @@ public class ListFile extends BaseClientAuth {
                         showMessage("Problem while retrieving files");
                         return;
                     }
+                    MetadataBuffer metadata = result.getMetadataBuffer();
+                    Metadata meta= metadata.get(0);
                     mResultsAdapter.clear();
-                    mResultsAdapter.append(result.getMetadataBuffer());
-                    showMessage("Successfully listed files.");
+                    mResultsAdapter.append(metadata);
                 }
             };
 }
