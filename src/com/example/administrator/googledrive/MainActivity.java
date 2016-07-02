@@ -8,7 +8,6 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
-import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -30,7 +29,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.AdapterView;
@@ -374,7 +372,7 @@ public class MainActivity extends Activity
             ListViewItem lvt = (ListViewItem) parent.getItemAtPosition(position);
             String FileId= lvt.getFileId();
             String FileName= lvt.getFileName();
-            new DownLoadFileTask(mCredential,FileId,FileName).execute();
+            new DownLoadFileTask(getBaseContext(),mCredential,FileId,FileName).execute();
             Toast.makeText(getBaseContext(),"DownLoad File = "+lvt.getFileName(),Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -400,66 +398,4 @@ public class MainActivity extends Activity
         }
     }
 
-    public class DownLoadFileTask extends AsyncTask<Void, Void, ByteArrayOutputStream> {
-        private com.google.api.services.drive.Drive dService = null;
-        private String fileName=null, fileID=null;
-        public DownLoadFileTask(GoogleAccountCredential credential, String fileID, String fileName) {
-            this.fileID=fileID;
-            this.fileName=fileName;
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            dService = new com.google.api.services.drive.Drive.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Drive API Android Quickstart")
-                    .build();
-        }
-
-
-        @Override
-        protected ByteArrayOutputStream doInBackground(Void... params) {
-            return downloadFile(fileID);
-        }
-
-        @Override
-        protected void onPostExecute(ByteArrayOutputStream os) {
-            super.onPostExecute(os);
-            byte[] filebyte=os.toByteArray();
-            String filePath =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()
-                    .toString()+"/SaveMeFolder";
-            try {
-                java.io.File dir = new java.io.File(filePath);
-                dir.mkdir();
-                Toast.makeText(getBaseContext(),"디렉터리 생성",Toast.LENGTH_SHORT).show();
-                BufferedWriter output = new BufferedWriter(new FileWriter(dir.getAbsolutePath().toString()
-                        +"/"+fileName,true));
-                output.write(filebyte.toString());
-                output.close();
-                Toast.makeText(getBaseContext(),"파일 다운로드 완료",Toast.LENGTH_SHORT).show();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        /**
-         * 길게 터치하면 파일 Id를 받아와서 executeMediaAndDownloadTo 메소드 실행
-         *
-         */
-        public ByteArrayOutputStream downloadFile(String fileId) {
-                OutputStream outputStream = new ByteArrayOutputStream();
-            try {
-                dService.files().get(fileId)
-                        .executeMediaAndDownloadTo(outputStream);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return (ByteArrayOutputStream)outputStream;
-        }
-
-
-    }
 }
