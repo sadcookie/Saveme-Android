@@ -72,6 +72,13 @@ public class DownLoadFileTask extends AsyncTask<Void, Void, ByteArrayOutputStrea
         }
     }
 
+
+
+
+    /**
+     * 길게 터치하면 파일 Id를 받아와서 executeMediaAndDownloadTo 메소드 실행
+     *
+     */
     public ByteArrayOutputStream downloadFile(String fileId) {
         OutputStream outputStream = new ByteArrayOutputStream();
         try {
